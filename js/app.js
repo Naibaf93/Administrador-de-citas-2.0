@@ -185,6 +185,7 @@ const citaObj  = {
         }
 
         if(editando) {
+            // Estamos editando
             ui.imprimirAlerta('Editado correctamente');
 
             // Pasar el objeto de la cita editada
@@ -196,14 +197,29 @@ const citaObj  = {
             // Quitar el modo edicion
             editando = false;
         } else {
+            //Nuevo registro
+
             // generar un id unico
             citaObj.id = Date.now();
 
             // Creando una nueva cita
             administrarCitas.agregarCita({...citaObj});
 
-            // Mensaje de agregado correctamente
-            ui.imprimirAlerta('Se agregó correctamente');
+            // Insertar registro en indexDB
+            const transaction = DB.transaction(['citas'], 'readwrite');
+
+            //Habilitar el objectstore
+            const objectStore = transaction.objectStore('citas');
+
+            // Insertar en la DB
+            objectStore.add(citaObj);
+
+            transaction.oncomplete = function () {
+                console.log('Cita agregada');
+
+                // Mensaje de agregado correctamente
+                ui.imprimirAlerta('Se agregó correctamente');
+            }
         }
 
         // Reiniciar el objeto para la validacion
