@@ -8,7 +8,9 @@ const horaInput = document.querySelector('#hora');
 const sintomasInput = document.querySelector('#sintomas');
 
 // UI
+// Formulario nuevas citas
 const formulario = document.querySelector('#nueva-cita');
+// Contenedor para las citas
 const contenedorCitas = document.querySelector('#citas');
 
 let editando; 
