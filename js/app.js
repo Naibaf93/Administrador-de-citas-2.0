@@ -13,7 +13,10 @@ const formulario = document.querySelector('#nueva-cita');
 // Contenedor para las citas
 const contenedorCitas = document.querySelector('#citas');
 
-let editando; 
+// Heading
+const heading = document.querySelector('#administra');
+
+let editando= false; 
 
 window.onload = () => {
     eventListeners();
