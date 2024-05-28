@@ -1,5 +1,6 @@
 // Selectores
 
+let DB;
 const mascotaInput = document.querySelector('#mascota');
 const propietarioInput = document.querySelector('#propietario');
 const telefonoInput = document.querySelector('#telefono');
@@ -19,29 +20,23 @@ const heading = document.querySelector('#administra');
 
 let editando = false;
 
+window.onload = () => {
+    eventListeners();
+
+    crearDB();
+}
+
 // Eventos
 eventListeners();
 function eventListeners() {
-    mascotaInput.addEventListener('change', datosCita);
-    propietarioInput.addEventListener('change', datosCita);
-    telefonoInput.addEventListener('change', datosCita);
-    fechaInput.addEventListener('change', datosCita);
-    horaInput.addEventListener('change', datosCita);
-    sintomasInput.addEventListener('change', datosCita);
-}
+    mascotaInput.addEventListener('input', datosCita);
+    propietarioInput.addEventListener('input', datosCita);
+    telefonoInput.addEventListener('input', datosCita);
+    fechaInput.addEventListener('input', datosCita);
+    horaInput.addEventListener('input', datosCita);
+    sintomasInput.addEventListener('input', datosCita);
 
-const citaObj = {
-    mascota: '',
-    propietario: '',
-    telefono: '',
-    fecha: '',
-    hora:'',
-    sintomas: ''
-}
-
-function datosCita(e) {
-    //  console.log(e.target.name) // Obtener el Input
-     citaObj[e.target.name] = e.target.value;
+    formulario.addEventListener('submit', nuevaCita);
 }
 
 // CLasses
@@ -164,10 +159,25 @@ class UI {
    }
 }
 
-
 const administrarCitas = new Citas();
 console.log(administrarCitas);
 const ui = new UI(administrarCitas);
+
+// Objeto de cita
+const citaObj = {
+    mascota: '',
+    propietario: '',
+    telefono: '',
+    fecha: '',
+    hora:'',
+    sintomas: ''
+}
+
+function datosCita(e) {
+    //  console.log(e.target.name) // Obtener el Input
+     citaObj[e.target.name] = e.target.value;
+}
+
 function nuevaCita(e) {
     e.preventDefault();
 
@@ -252,8 +262,46 @@ function cargarEdicion(cita) {
     horaInput.value = hora;
     sintomasInput.value = sintomas;
 
+    // Cambiar el texto del boton
     formulario.querySelector('button[type="submit"]').textContent = 'Guardar Cambios';
 
     editando = true;
-
 }
+
+function crearDB() {
+    // crear la base de datos en version 1.0
+    const crearDB = window.indexedDB.open('citas', 1);
+
+    // Si hay un error
+    crearDB.onerror = function() {
+        console.log('hubo un error');
+    }
+
+    // Si todo sale bien
+    crearDB.onsuccess = function() {
+        console.log('DB creada');
+
+        DB = crearDB.result;
+        console.log(DB);
+    }
+
+    // Definir el schema
+    crearDB.onupgradeneeded = function(e) {
+        const db = e.target.result;
+        const objectStore = db.createObjectStore('citas', {
+            keyPath:'id',
+            autoIncrement: true
+        });
+
+        // Definir columnas
+        objectStore.createIndex('mascota', 'mascota', {unique: false});
+        objectStore.createIndex('propietario', 'propietario', {unique: false});
+        objectStore.createIndex('telefono', 'telefono', {unique: false});
+        objectStore.createIndex('fecha', 'fecha', {unique: false});
+        objectStore.createIndex('hora', 'hora', {unique: false});
+        objectStore.createIndex('sintomas', 'sintomas', {unique: false});
+        objectStore.createIndex('id', 'id', {unique: true});
+
+        console.log('DB creada y lista');
+    }
+}    
