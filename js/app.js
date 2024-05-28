@@ -201,13 +201,29 @@ function nuevaCita(e) {
         editando = false;
 
     } else {
-        // Nuevo Registrando
+        // Nuevo Registro
 
         // Generar un ID único
         citaObj.id = Date.now();
         
         // Añade la nueva cita
         administrarCitas.agregarCita({...citaObj});
+
+        // Insertar registro en indexDB
+        const transaction = DB.transaction(['citas'], 'readwrite');
+
+        //Habilitar el objectstore
+        const objectStore = transaction.objectStore('citas');
+
+        // Insertar en la DB
+        objectStore.add(citaObj);
+
+        transaction.oncomplete = function () {
+            console.log('Cita agregada');
+
+            // Mensaje de agregado correctamente
+            ui.imprimirAlerta('Se agregó correctamente');
+        }
 
         // Mostrar mensaje de que todo esta bien...
         ui.imprimirAlerta('Se agregó correctamente')
