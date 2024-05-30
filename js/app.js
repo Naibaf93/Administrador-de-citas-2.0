@@ -140,6 +140,7 @@ class UI {
     
                 // Añade un botón de editar...
                 const btnEditar = document.createElement('button');
+                const cita = cursor.value;
                 btnEditar.onclick = () => cargarEdicion(cita);
                 btnEditar.classList.add('btn', 'btn-info');
                 btnEditar.innerHTML = 'Editar <svg fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" stroke="currentColor"><path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>'
@@ -211,11 +212,23 @@ function nuevaCita(e) {
         // Estamos editando
         administrarCitas.editarCita( {...citaObj} );
 
-        ui.imprimirAlerta('Guardado Correctamente');
+        // Edita en indexDB
+        const transaction = DB.transaction(['citas'], 'readwrite');
+        const objectStore = transaction.objectStore('citas');
 
-        formulario.querySelector('button[type="submit"]').textContent = 'Crear Cita';
+        objectStore.put(citaObj);
 
-        editando = false;
+        transaction.oncomplete = () => {
+            ui.imprimirAlerta('Guardado Correctamente');
+
+            formulario.querySelector('button[type="submit"]').textContent = 'Crear Cita';
+
+            editando = false;
+        }
+
+        transaction.onerror = () => {
+            console.log('Hubo un error');
+        }
 
     } else {
         // Nuevo Registro
